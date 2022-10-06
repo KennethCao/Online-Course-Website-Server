@@ -1,12 +1,12 @@
 const express = require("express");
-
+const {decode} = require('html-entities');//解析中文参数
 let router = express.Router();
 
 // 1. 课程搜索
 router.get("/course", (req,resp)=>{
     let {key=""} = req.query;
 
-    // key = decode(key)
+    key = decode(key)
     // console.log(key)
     resp.tool.execSQLAutoResponse(`
     SELECT
@@ -30,7 +30,7 @@ router.get("/course", (req,resp)=>{
 // 2. 讲师搜索
 router.get("/teacher", (req, resp) => {
     let {key=""} = req.query;
-    // key = decode(key)
+    key = decode(key)
     resp.tool.execSQLAutoResponse(`
     SELECT
         t_teacher.id,
@@ -53,7 +53,7 @@ router.get("/teacher", (req, resp) => {
 // 3. 文章搜索
 router.get("/article", (req, resp) => {
     let {key=""} = req.query;
-    // key = decode(key)
+    key = decode(key)
     resp.tool.execSQLAutoResponse(`
     SELECT
         id,
@@ -72,7 +72,7 @@ router.get("/article", (req, resp) => {
 // 4. 搜索全部
 router.get("/all", (req, resp) => {
     let {key=""} = req.query;
-    // key = decode(key)
+    key = decode(key)
     Promise.all([resp.tool.execSQL(`
     SELECT
         t_course.id,

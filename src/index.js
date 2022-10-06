@@ -18,6 +18,12 @@ const mOverViewRouter = require("./routers/manager/overViewRouter");
 const mStatisticsRouter = require("./routers/manager/statisticsRouter");
 const mTeacherRouter = require("./routers/manager/teacherRouter");
 const {rizhiM, notFoundMF, handlerErrorMF, crossDomainM, toolM} = require("./middleware/jh_middleware");
+// PM2:
+// Node 进程管理工具: 性能监控, 负载均衡, 自动重启...
+// 安装: yarn global add pm2; npm install pm2 -g
+// 启动服务：在项目文件夹下执行pm2 start index.js / pm2 start 0（id号）
+// 重启服务：pm2 restart index
+// 停止服务：pm2 stop index
 
 
 // 创建express对象
