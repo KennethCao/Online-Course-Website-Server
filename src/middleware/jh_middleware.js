@@ -5,7 +5,7 @@ const {sendMail} = require("../tool/email")
 const {execSQL} = require("../tool/mysql");
 
 // 跨域
-let crossDomainM = (req, resp, next)=>{
+let crossDomainM = (req, resp, next) => {
     resp.header("Access-Control-Allow-Origin", "*");
     resp.header("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE");
     resp.header("Access-Control-Allow-Headers", "Content-Type");
@@ -45,8 +45,8 @@ let rizhiM = (req, resp, next) => {
     let ua = req.headers["user-agent"];
 
     execSQL("insert into log (method, path, params, user_agent) values (?, ?, ?, ?);",
-        [method, path ,JSON.stringify(params), ua]).then(result=>{
-            console.log("记录日志成功！");
+        [method, path, JSON.stringify(params), ua]).then(result => {
+        console.log("记录日志成功！");
     });
 
     next()
@@ -71,10 +71,10 @@ let handlerErrorMF = function (errorResponseFilePath) {
         =======================================
         `
         execSQL("insert into error (err_type, err_msg, err_stack) values (?, ?, ?);",
-            [err_type, err_msg, JSON.stringify(err_stack)]).then(result=>{
-                if(result.affectedRows >= 1){
-                    sendMail("674360732@qq.com", "错误报告", info);
-                }
+            [err_type, err_msg, JSON.stringify(err_stack)]).then(result => {
+            if (result.affectedRows >= 1) {
+                sendMail("674360732@qq.com", "错误报告", info);
+            }
         })
 
         resp.status(500).sendFile(errorResponseFilePath)
@@ -82,9 +82,43 @@ let handlerErrorMF = function (errorResponseFilePath) {
 
 }
 
+// 工具
+
+let toolM = (req, resp, next) => {
+    function ResponseTemp(code, msg, data) {
+        return {
+            code,
+            msg,
+            data
+        }
+    }
+    resp.tool = {
+        execSQL,
+        ResponseTemp,
+        // 不带参数的SQL
+        execSQLAutoResponse: function (sql, successMsg="查询成功", handlerResultF=result=>result) {
+             execSQL(sql).then(result=>{
+                 resp.send(ResponseTemp(0, successMsg, handlerResultF(result)))
+             }).catch(error=>{
+                 resp.send(ResponseTemp(-1, "Api出现错误", null))
+             })
+        },
+        // 带参数的SQL
+        execSQLTEMPAutoResponse: function (sqlTEMP, values=[], successMsg="查询成功", handlerResultF=result=>result) {
+            execSQL(sqlTEMP, values).then(result=>{
+                resp.send(ResponseTemp(0, successMsg, handlerResultF(result)))
+            }).catch(error=>{
+                resp.send(ResponseTemp(-1, "Api出现错误", null))
+            })
+        }
+    }
+    next();
+}
+
 module.exports = {
     notFoundMF,
     rizhiM,
     handlerErrorMF,
-    crossDomainM
+    crossDomainM,
+    toolM
 }
